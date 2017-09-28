@@ -967,7 +967,7 @@ void grpc_chttp2_initiate_write(grpc_exec_ctx *exec_ctx,
 void grpc_chttp2_mark_stream_writable(grpc_exec_ctx *exec_ctx,
                                       grpc_chttp2_transport *t,
                                       grpc_chttp2_stream *s) {
-  if (!t->closed && grpc_chttp2_list_add_writable_stream(t, s)) {
+  if (!t->closed && !s->write_closed && grpc_chttp2_list_add_writable_stream(t, s)) {
     GRPC_CHTTP2_STREAM_REF(s, "chttp2_writing:become");
   }
 }
