@@ -28,6 +28,7 @@
 #include <grpc++/server_builder.h>
 #include <grpc++/server_context.h>
 #include <grpc++/security/server_credentials.h>
+#include <grpc++/impl/codegen/call.h>
 #include "helper.h"
 #include "route_guide.grpc.pb.h"
 
@@ -38,6 +39,7 @@ using grpc::ServerReader;
 using grpc::ServerReaderWriter;
 using grpc::ServerWriter;
 using grpc::Status;
+using grpc::WriteOptions;
 using routeguide::Point;
 using routeguide::Feature;
 using routeguide::Rectangle;
@@ -103,12 +105,14 @@ class RouteGuideImpl final : public RouteGuide::Service {
     long right = (std::max)(lo.longitude(), hi.longitude());
     long top = (std::max)(lo.latitude(), hi.latitude());
     long bottom = (std::min)(lo.latitude(), hi.latitude());
+    WriteOptions opt;
+    opt.set_buffer_hint();
     for (const Feature& f : feature_list_) {
       if (f.location().longitude() >= left &&
           f.location().longitude() <= right &&
           f.location().latitude() >= bottom &&
           f.location().latitude() <= top) {
-        writer->Write(f);
+        writer->Write(f, opt);
       }
     }
     return Status::OK;
